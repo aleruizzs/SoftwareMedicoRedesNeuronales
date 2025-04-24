@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+python-multipart
+requests
+opencv-python-headless
+Django==5.1.7
+gunicorn
+djangorestframework
+pillow
+numpy<2
+django-extensions

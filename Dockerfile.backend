@@ -1,0 +1,21 @@
+FROM python:3.10-slim
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      build-essential libjpeg-dev zlib1g-dev libpq-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY backend/ ./backend
+COPY image_processing ./image_processing
+COPY templates ./templates
+COPY scripts ./scripts
+
+ENV PYTHONPATH=/app
+RUN python backend/manage.py migrate
+RUN python backend/manage.py runscript init_data
+
+CMD ["python", "backend/manage.py", "runserver", "0.0.0.0:8000"]

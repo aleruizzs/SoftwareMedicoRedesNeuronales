@@ -1,0 +1,35 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    # En dev, usa runserver para que Django maneje static + CSRF correctamente
+    command: python backend/manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - ALLOWED_HOSTS=*
+    volumes:
+      - .:/app                         # monta TODO tu proyecto
+      - media:/app/media               # persiste los uploads
+      - staticfiles:/app/staticfiles   # persiste los collectstatic
+      - ./db.sqlite3:/app/db.sqlite3   # persiste la base de datos
+    depends_on:
+      - inference
+
+  inference:
+    build:
+      context: .
+      dockerfile: Dockerfile.inference
+    ports:
+      - "8001:8001"
+    volumes:
+      - models:/app/modelos
+      - outputs:/app/outputs
+
+volumes:
+  media:
+  staticfiles:
+  models:
+  outputs:

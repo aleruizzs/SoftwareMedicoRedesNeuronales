@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>Procesador de Imágenes Médicas</title>
+  <style>
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #f2f2f2;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      width: 100%;
+      max-width: 600px;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0px;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .nav-links a,
+    .nav-links button {
+      display: inline-flex;
+      align-items: center;
+      background: none;
+      border: none;
+      color: #2a9d8f;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      padding: 5px 8px;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links button:hover {
+      color: #21867a;
+      text-decoration: underline;
+    }
+
+    .nav-links button {
+      font-family: inherit;
+    }
+
+
+    select,
+    input[type="text"],
+    input[type="file"],
+    button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    select:focus,
+    input[type="text"]:focus,
+    input[type="file"]:focus {
+      outline: none;
+      border-color: #2a9d8f;
+    }
+    button {
+      background: #e63946;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    #error-message {
+      color: #e63946;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 15px;
+    }
+    /* Spinner */
+    #loader-container {
+      display: none;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    #loader {
+      margin: 0 auto 10px auto;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #2a9d8f;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+    #loader-text {
+      font-weight: bold;
+      color: #2a9d8f;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* Descarga */
+    .download-card {
+      display: none;
+      background: #2a9d8f;
+      color: #fff;
+      text-align: center;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      transition: background 0.3s ease, transform 0.3s ease;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .download-card:hover {
+      background: #21867a;
+    }
+
+    button#procesarButton:hover {
+      background: #b92f3a; /* un tono más oscuro del rojo base */
+    }
+
+    /* Imágenes */
+    .image-section {
+      display: none;
+      margin-top: 20px;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .image-container {
+      flex: 1;
+      min-width: 45%;
+    }
+    .image-container h2 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 16px;
+      color: #333;
+    }
+    .image-container img {
+      width: 100%;
+      border-radius: 8px;
+      border: 2px solid #ccc;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+    .image-container img:hover {
+      transform: scale(1.02);
+      border-color: #2a9d8f;
+    }
+    @media (max-width: 600px) {
+      .image-section {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Analizar Imagen</h1>
+    <div class="top-bar">
+      <div><strong>Bienvenido, {{ user.username }}</strong></div>
+      <div class="nav-links">
+        <a href="{% url 'historial' %}" class="nav-item">📂 Historial</a>
+        <form action="{% url 'logout' %}" method="post" class="nav-item">
+          {% csrf_token %}
+          <button type="submit">🚪 Cerrar sesión</button>
+        </form>
+      </div>
+    </div>
+
+    <select id="model">
+      <option value="columna">Columna</option>
+      <option value="torax">Tórax</option>
+      <option value="fake">Fake</option>
+    </select>
+
+    <input type="text" id="patientDNI" placeholder="DNI del paciente" required>
+
+    <input type="file" id="imageInput" accept="image/jpeg, image/png">
+    <button id="procesarButton" onclick="uploadImage()">Procesar Imagen</button>
+    <div id="error-message"></div>
+
+    <!-- Spinner -->
+    <div id="loader-container">
+      <div id="loader"></div>
+      <div id="loader-text">Procesando imagen...</div>
+    </div>
+
+    <!-- Tarjeta de descarga -->
+    <a class="download-card" id="download-link" download="resultado.png">Descargar imagen procesada</a>
+
+    <!-- Sección de imágenes -->
+    <div class="image-section" id="image-section">
+      <div class="image-container">
+        <h2>Imagen Original</h2>
+        <img id="originalImage" src="" alt="Imagen original" onclick="openModal(this.src)">
+      </div>
+      <div class="image-container">
+        <h2>Imagen Procesada</h2>
+        <img id="processedImage" src="" alt="Imagen procesada" onclick="openModal(this.src)">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function uploadImage() {
+      const input = document.getElementById("imageInput");
+      const errorMessageDiv = document.getElementById("error-message");
+      const imageSection = document.getElementById("image-section");
+      const downloadLink = document.getElementById("download-link");
+      const downloadCard = document.getElementById("download-link");
+      const loaderContainer = document.getElementById("loader-container");
+      const csrfToken = document.querySelector('[name=csrf-token]').content;
+      
+      errorMessageDiv.style.display = "none";
+      errorMessageDiv.textContent = "";
+      imageSection.style.display = "none";
+      downloadCard.style.display = "none";
+      loaderContainer.style.display = "block";
+      
+      if (!input.files.length) {
+        alert("Por favor, selecciona una imagen.");
+        loaderContainer.style.display = "none";
+        return;
+      }
+      
+      const file = input.files[0];
+      const dni = document.getElementById("patientDNI").value;
+      
+      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        loaderContainer.style.display = "none";
+        errorMessageDiv.style.display = "block";
+        errorMessageDiv.textContent = "El archivo debe ser una imagen en formato JPG, JPEG o PNG.";
+        return;
+      }
+      
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("model", document.getElementById("model").value);
+      formData.append("patient_dni", dni);
+
+      console.time("TotalProcessingTime");
+
+      try {
+        const response = await fetch("/process/", {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+          headers: {
+            "X-CSRFToken": csrfToken
+          }
+        });
+      
+        if (!response.ok) throw new Error("Error en el procesamiento");
+      
+        const data = await response.json();
+      
+        const originalURL = URL.createObjectURL(file);
+        document.getElementById("originalImage").src = originalURL;
+      
+        const processedImageURL = "/" + data.processed_image;
+      
+        waitForImage(processedImageURL, () => {
+          document.getElementById("processedImage").src = processedImageURL;
+          imageSection.style.display = "flex";
+          downloadLink.href = processedImageURL;
+          downloadCard.style.display = "block";
+          loaderContainer.style.display = "none";
+        });
+      
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Hubo un problema al procesar la imagen.");
+        loaderContainer.style.display = "none";
+      }
+      console.timeEnd("TotalProcessingTime");
+    }
+    
+    function waitForImage(imageUrl, callback, attempts = 20) {
+      if (attempts === 0) {
+        console.error("No se pudo cargar la imagen procesada.");
+        return;
+      }
+      fetch(imageUrl, { method: "HEAD" })
+        .then(response => {
+          if (response.ok) {
+            callback();
+          } else {
+            setTimeout(() => waitForImage(imageUrl, callback, attempts - 1), 1000);
+          }
+        })
+        .catch(() => {
+          setTimeout(() => waitForImage(imageUrl, callback, attempts - 1), 1000);
+        });
+    }
+
+
+
+  </script>
+</body>
+</html>

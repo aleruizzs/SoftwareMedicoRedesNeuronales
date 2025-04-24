@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Historial de Imágenes Procesadas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #f2f2f2;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+    /* Formulario de búsqueda */
+    form.search-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    form.search-form input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    form.search-form button {
+      padding: 10px 20px;
+      background-color: #2a9d8f;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    form.search-form button:hover {
+      background-color: #21867a;
+    }
+    /* Tabla */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      font-size: 14px;
+    }
+    th {
+      background: #f0f0f0;
+      font-weight: bold;
+      color: #333;
+    }
+    /* Acciones */
+    a.action-link {
+      color: #e63946;
+      text-decoration: none;
+      font-weight: bold;
+      margin-right: 10px;
+      display: inline-block;
+      transition: transform 0.3s ease; /* Añade una transición suave */
+    }
+    a.action-link:hover {
+      transform: scale(1.1);
+      transition: all 0.3s ease;
+    }
+    form.delete-form {
+      display: inline;
+    }
+    form.delete-form button {
+      background: none;
+      border: none;
+      color: #e63946;
+      cursor: pointer;
+      font-size: 16px;
+      font-family: inherit;
+      font-weight: bold;
+      text-align: left;
+      transition: transform 0.3s ease; /* Añade una transición suave */
+    }
+    form.delete-form button:hover {
+      transform: scale(1.1);
+      transition: all 0.3s ease;
+    }
+    /* Enlace de volver */
+    .back-link {
+      text-align: center;
+      margin-top: 30px;
+    }
+    .back-link a {
+      color: #2a9d8f;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .back-link a:hover {
+      transform: scale(1.1);
+      transition: all 0.3s ease;
+    }
+    /* Mensajes */
+    p.message {
+      text-align: center;
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Historial de Imágenes Procesadas</h1>
+    
+    <form method="get" class="search-form">
+      <input type="text" name="q" placeholder="Buscar por DNI..." value="{{ request.GET.q }}">
+      <button type="submit">Buscar</button>
+    </form>
+    
+    {% if imagenes %}
+      <table>
+        <thead>
+          <tr>
+            <th>DNI</th>
+            <th>Imagen</th>
+            <th>Modelo</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for img in imagenes %}
+          <tr>
+            <td>{{ img.patient_dni }}</td>
+            <td>{{ img.image_name }}</td>
+            <td>{{ img.model_used }}</td>
+            <td>{{ img.timestamp|date:"d/m/Y H:i" }}</td>
+            <td>
+              <a href="/{{ img.file_path }}" target="_blank" class="action-link">🔍</a>
+              <form method="post" action="{% url 'delete_image' img.id %}" class="delete-form">
+                {% csrf_token %}
+                <button type="submit" onclick="return confirm('¿Estás seguro de que quieres eliminar esta imagen?');">🗑️</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="message">No hay imágenes procesadas aún.</p>
+    {% endif %}
+    
+    <div class="back-link">
+      <a href="/">← Volver al inicio</a>
+    </div>
+  </div>
+</body>
+</html>
