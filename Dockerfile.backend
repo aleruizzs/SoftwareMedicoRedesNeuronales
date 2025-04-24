@@ -15,6 +15,7 @@ COPY templates ./templates
 COPY scripts ./scripts
 
 ENV PYTHONPATH=/app
+RUN mkdir -p /app/backend
 RUN python backend/manage.py migrate
 RUN python backend/manage.py runscript init_data
 
