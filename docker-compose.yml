@@ -11,10 +11,9 @@ services:
       - DEBUG=True
       - ALLOWED_HOSTS=*
     volumes:
-      - .:/app                         # monta TODO tu proyecto
-      - media:/app/media               # persiste los uploads
-      - staticfiles:/app/staticfiles   # persiste los collectstatic
-      - ./db.sqlite3:/app/db.sqlite3   # persiste la base de datos
+      - ./media:/app/backend/media
+      - ./staticfiles:/app/backend/staticfiles
+      - ./backend/db.sqlite3:/app/backend/db.sqlite3
     depends_on:
       - inference
 
