@@ -11,9 +11,9 @@ services:
       - DEBUG=True
       - ALLOWED_HOSTS=*
     volumes:
-      - ./media:/app/backend/media
-      - ./staticfiles:/app/backend/staticfiles
-      - ./backend/db.sqlite3:/app/backend/db.sqlite3
+      - ./media:/app/media
+      - ./staticfiles:/app/staticfiles
+      - ./backend/db.sqlite3:/app/db.sqlite3
     depends_on:
       - inference
 
