@@ -5,7 +5,6 @@ from detectron2 import model_zoo
 from .base import BaseModelStrategy
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog
-from huggingface_hub import hf_hub_download
 import os
 
 class ToraxStrategy(BaseModelStrategy):
