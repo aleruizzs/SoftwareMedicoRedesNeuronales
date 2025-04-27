@@ -6,16 +6,16 @@ import numpy as np
 from .base import BaseModelStrategy
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog
+from huggingface_hub import hf_hub_download
 import os 
 
 class ColumnaStrategy(BaseModelStrategy):
     def configure(self):
-        # Configurar Detectron2 para el modelo de "columna"
         cfg = get_cfg()
         cfg.merge_from_file(
             model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
         )
-        cfg.MODEL.WEIGHTS = os.path.join(os.path.dirname(__file__), "..", "modelos", "columna.pth")
+        cfg.MODEL.WEIGHTS = "/app/modelos/columna.pth"
         cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
         cfg.MODEL.DEVICE = "cpu"
         self.cfg = cfg

@@ -5,6 +5,7 @@ from detectron2 import model_zoo
 from .base import BaseModelStrategy
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog
+from huggingface_hub import hf_hub_download
 import os
 
 class ToraxStrategy(BaseModelStrategy):
@@ -13,7 +14,7 @@ class ToraxStrategy(BaseModelStrategy):
         cfg.merge_from_file(
             model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
         )
-        cfg.MODEL.WEIGHTS = os.path.join(os.path.dirname(__file__), "..", "modelos", "torax.pth")
+        cfg.MODEL.WEIGHTS = "/app/modelos/torax.pth"
         cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
         cfg.MODEL.DEVICE = "cpu"
         self.cfg = cfg

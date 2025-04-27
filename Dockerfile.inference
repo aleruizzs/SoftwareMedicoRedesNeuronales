@@ -1,26 +1,28 @@
 FROM python:3.10-slim
 
-# 1. Dependencias del sistema necesarias
+# 1) Instala Git LFS y las librerías del sistema
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential git libgl1 libglib2.0-0 && \
-    rm -rf /var/lib/apt/lists/*
+    build-essential \
+    git-lfs \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/* \
+    && git lfs install
 
-# 2. Establecer el directorio de trabajo
+# 2) Clona tu repo de pesos (ya tiene columna.pth y torax.pth en la raíz)
 WORKDIR /app
+RUN git clone https://huggingface.co/aleruizzs/modelos /app/modelos
 
-# 3. Instalar dependencias Python básicas
+# 3) Instala dependencias Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 4. Instalar Torch CPU + torchvision desde PyTorch oficial
-RUN pip install --no-cache-dir torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cpu
+# 4) Instala Torch CPU + Detectron2
+RUN pip install --no-cache-dir \
+      torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cpu \
+    && pip install --no-cache-dir git+https://github.com/facebookresearch/detectron2.git
 
-# 5. Instalar Detectron2 desde GitHub (commit compatible)
-RUN pip install --no-cache-dir git+https://github.com/facebookresearch/detectron2.git
-
-
-
-# 6. Copiar el código del servidor de inferencia
+# 5) Copia el código de tu servidor
 COPY inference ./inference
 ENV PYTHONPATH=/app/inference
 
