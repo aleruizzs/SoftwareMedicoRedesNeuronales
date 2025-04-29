@@ -24,7 +24,7 @@ services:
     ports:
       - "8001:8001"
     volumes:
-      - outputs:/app/outputs
+      - ./outputs:/app/outputs
 
 volumes:
   media:

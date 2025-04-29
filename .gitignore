@@ -23,3 +23,6 @@ htmlcov/
 
 *.pth
 modelos/
+
+*png
+outputs/
