@@ -24,5 +24,4 @@ htmlcov/
 *.pth
 modelos/
 
-*png
-outputs/
+outputs/*.png
