@@ -76,11 +76,13 @@ def custom_logout(request):
 @csrf_protect
 @login_required
 def delete_image(request, image_id):
-    img = get_object_or_404(ProcessedImage, id=image_id, user=request.user)
-
     if request.method == 'POST':
-        img.delete()
-        messages.success(request, 'Imagen eliminada correctamente.')
-        return redirect('historial')
+        try:
+            imagen = ProcessedImage.objects.get(pk=image_id)
+            imagen.delete()
+            messages.success(request, "Imagen eliminada correctamente.")
+        except ProcessedImage.DoesNotExist:
+            messages.error(request, "La imagen ya no existe en la base de datos.")
+        return redirect("historial")
 
     return redirect('historial')

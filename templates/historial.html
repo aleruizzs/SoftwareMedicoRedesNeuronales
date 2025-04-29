@@ -124,12 +124,34 @@
       color: #333;
       margin-bottom: 20px;
     }
+    .message.error {
+      color: #e63946;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .message.success {
+      color: #2a9d8f;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Historial de Imágenes Procesadas</h1>
-    
+    {% if messages %}
+      <div>
+        {% for message in messages %}
+          <p class="message {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
     <form method="get" class="search-form">
       <input type="text" name="q" placeholder="Buscar por DNI..." value="{{ request.GET.q }}">
       <button type="submit">Buscar</button>
