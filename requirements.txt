@@ -9,3 +9,4 @@ djangorestframework
 pillow
 numpy<2
 django-extensions
+httpx

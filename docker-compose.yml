@@ -25,6 +25,16 @@ services:
       - "8001:8001"
     volumes:
       - ./outputs:/app/outputs
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    command: bash -c "pip install pytest pytest-django && pytest tests/"
+    environment:
+      - DJANGO_SETTINGS_MODULE=backend.settings
+      - PYTHONPATH=.
+    volumes:
+      - .:/app
 
 volumes:
   media:

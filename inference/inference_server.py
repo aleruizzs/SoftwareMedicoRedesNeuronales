@@ -4,7 +4,7 @@ import uuid
 import os
 import cv2
 import numpy as np
-from model_strategies.factory import get_model_strategy
+from .model_strategies.factory import get_model_strategy
 import time
 from fastapi.exceptions import RequestValidationError
 from fastapi import HTTPException
