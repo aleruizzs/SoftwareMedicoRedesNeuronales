@@ -44,7 +44,7 @@ class UnifiedTests(TestCase):
             'patient_dni': '00000000X',
             'image': SimpleUploadedFile('test.jpg', self.img_bytes, content_type='image/jpeg')
         })
-        self.assertEqual(response.status_code, 302)  # Redirección a login
+        self.assertEqual(response.status_code, 302)
 
     def test_process_creates_processedimage_entry(self):
         response = self.client.post('/process/', {
@@ -67,20 +67,17 @@ class UnifiedTests(TestCase):
         self.assertContains(response, "12345678Z")
 
     def test_index_view_renders_for_logged_user(self):
-        """El index debe responder 200 y saludar al usuario autenticado."""
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Bienvenido, testuser")
 
     def test_historial_requires_login(self):
-        """Sin iniciar sesión, /historial/ redirige a la página de login."""
         self.client.logout()
         response = self.client.get("/historial/")
         self.assertEqual(response.status_code, 302)
         self.assertIn("/login/", response["Location"])
 
     def test_delete_nonexistent_image_graceful(self):
-        """Intentar borrar una imagen inexistente muestra mensaje de error y redirige."""
         response = self.client.post("/historial/delete/999/")
         # Redirige de vuelta al historial
         self.assertEqual(response.status_code, 302)
@@ -101,7 +98,7 @@ class UnifiedTests(TestCase):
             files={"image": ("test.jpg", self.img_bytes, "image/jpeg")},
             data={"model": "fake"}
         )
-        self.assertIn(response.status_code, [200, 500])  # 200 si todo ok, 500 si falta el modelo
+        self.assertIn(response.status_code, [200, 500]) 
 
     def test_fastapi_corrupt_image(self):
         response = self.fastapi_client.post(
@@ -122,7 +119,6 @@ class UnifiedTests(TestCase):
         self.assertIn("modelo desconocido", response.json().get("error", "").lower())
 
     def test_fastapi_missing_image_field(self):
-        """Sin campo image, FastAPI debe responder 422 (validación Pydantic)."""
         response = self.fastapi_client.post(
             "/predict/",
             data={"model": "fake"}
@@ -130,7 +126,6 @@ class UnifiedTests(TestCase):
         self.assertEqual(response.status_code, 422)
 
     def test_fastapi_missing_model_field(self):
-        """Sin campo model, FastAPI también debe responder 422."""
         response = self.fastapi_client.post(
             "/predict/",
             files={"image": ("test.jpg", self.img_bytes, "image/jpeg")}
@@ -138,7 +133,6 @@ class UnifiedTests(TestCase):
         self.assertEqual(response.status_code, 422)
 
     def test_fastapi_unsupported_mime_type(self):
-        """Enviar una imagen GIF (tipo no permitido) debe devolver 400."""
         response = self.fastapi_client.post(
             "/predict/",
             files={"image": ("anim.gif", self.img_bytes, "image/gif")},
