@@ -25,3 +25,4 @@ htmlcov/
 modelos/
 
 outputs/*.png
+backend/db.sqlite3
