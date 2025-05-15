@@ -7,7 +7,7 @@ from inference.inference_server import app as fastapi_app
 from image_processing.models import ProcessedImage
 import numpy as np
 import cv2
-
+from unittest.mock import patch, Mock
 
 # Genera bytes de una imagen JPEG válida (100×100 px verdes por defecto)
 def create_dummy_image_bytes(width=100, height=100, color=(0, 255, 0)):
@@ -46,12 +46,17 @@ class UnifiedTests(TestCase):
         })
         self.assertEqual(response.status_code, 302)
 
-    def test_process_creates_processedimage_entry(self):
+    @patch("image_processing.views.requests.post")
+    def test_process_creates_processedimage_entry(self, mock_post):
+        # Devuelve imagen dummy desde el mock
+        mock_post.return_value = Mock(status_code=200, content=self.img_bytes)
+
         response = self.client.post('/process/', {
             'model': 'fake',
             'patient_dni': '11111111H',
             'image': SimpleUploadedFile('test.jpg', self.img_bytes, content_type='image/jpeg')
         })
+
         self.assertEqual(response.status_code, 200)
         self.assertTrue(ProcessedImage.objects.filter(patient_dni='11111111H').exists())
 
