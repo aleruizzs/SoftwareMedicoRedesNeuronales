@@ -1,4 +1,3 @@
-# model_strategies/factory.py
 def get_model_strategy(model_name: str):
     if model_name == "columna":
         from .columna import ColumnaStrategy

@@ -60,7 +60,7 @@ def index(request):
 
 @login_required
 def historial(request):
-    imagenes = ProcessedImage.objects.filter(user=request.user)
+    imagenes = ProcessedImage.objects.all()
 
     q = request.GET.get("q")
     if q:
