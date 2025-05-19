@@ -41,6 +41,7 @@ def process_image(request):
     # Guardar la imagen procesada recibida desde FastAPI
     output_filename = f"processed_{image_file.name}"
     output_path = os.path.join(settings.MEDIA_ROOT, output_filename)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "wb") as f:
         f.write(response.content)
 

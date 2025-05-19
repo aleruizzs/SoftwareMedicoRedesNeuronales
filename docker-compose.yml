@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    # En dev, usa runserver para que Django maneje static + CSRF correctamente
     command: python backend/manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
