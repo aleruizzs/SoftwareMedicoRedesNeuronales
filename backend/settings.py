@@ -133,3 +133,5 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 LOGIN_URL = "/login/"
 
+SESSION_COOKIE_AGE = 3600  # en segundos (1 hora)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # borra la sesión al cerrar el navegador

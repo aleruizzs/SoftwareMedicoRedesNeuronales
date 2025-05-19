@@ -7,8 +7,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=True
-      - ALLOWED_HOSTS=*
+      DJANGO_SETTINGS_MODULE: backend.settings
+      DEBUG: "True"
+      ALLOWED_HOSTS: "*"
     volumes:
       - .:/app
     depends_on:
