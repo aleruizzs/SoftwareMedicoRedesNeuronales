@@ -12,6 +12,7 @@ services:
       ALLOWED_HOSTS: "*"
     volumes:
       - .:/app
+      - ./media:/app/media
     depends_on:
       - inference
 
