@@ -6,7 +6,7 @@ from django.core.files.storage import default_storage
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import ProcessedImage
-
+import uuid
 import requests
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -39,7 +39,10 @@ def process_image(request):
         return Response({"error": "Error desde el servidor de inferencia"}, status=500)
 
     # Guardar la imagen procesada recibida desde FastAPI
-    output_filename = f"processed_{image_file.name}"
+    extension = os.path.splitext(image_file.name)[1]
+    unique_id = uuid.uuid4().hex
+    output_filename = f"processed_{unique_id}{extension}"
+
     output_path = os.path.join(settings.MEDIA_ROOT, output_filename)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "wb") as f:
