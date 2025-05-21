@@ -27,7 +27,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    command: bash -c "pip install pytest pytest-django && pytest tests/"
+    command: bash -c "pip install pytest pytest-django coverage && coverage run --rcfile=.coveragerc -m pytest tests/ && coverage report --rcfile=.coveragerc && coverage html --rcfile=.coveragerc"
     environment:
       - DJANGO_SETTINGS_MODULE=backend.settings
       - PYTHONPATH=.
