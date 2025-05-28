@@ -10,3 +10,4 @@ pillow
 numpy<2
 django-extensions
 httpx
+ultralytics>=8.0.0
