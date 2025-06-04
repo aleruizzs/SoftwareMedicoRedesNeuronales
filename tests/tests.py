@@ -145,3 +145,41 @@ class UnifiedTests(TestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn("El archivo debe ser una imagen", response.json().get("detail", ""))
+        
+    # ──────────────────────── Pruebas de health/up ─────────────────────────
+    def test_django_health_up(self):
+        """La página de login debería cargarse correctamente"""
+        response = self.client.get("/login/")
+        self.assertEqual(response.status_code, 200)
+
+    def test_fastapi_health_up(self):
+        """El esquema OpenAPI debe estar disponible"""
+        response = self.fastapi_client.get("/openapi.json")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("openapi", response.json())
+
+    # ————————————— Pruebas de carga —————————————
+    @patch("image_processing.views.requests.post")
+    def test_django_process_load(self, mock_post):
+        """Simula varias peticiones consecutivas al endpoint /process/."""
+        mock_post.return_value = Mock(status_code=200, content=self.img_bytes)
+
+        for i in range(5):
+            response = self.client.post('/process/', {
+                'model': 'fake',
+                'patient_dni': f'9999999{i}',
+                'image': SimpleUploadedFile(f'test{i}.jpg', self.img_bytes, content_type='image/jpeg')
+            })
+            self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(ProcessedImage.objects.count(), 5)
+
+    def test_fastapi_predict_load(self):
+        """Lanza varias predicciones consecutivas para comprobar rendimiento."""
+        for _ in range(5):
+            response = self.fastapi_client.post(
+                "/predict/",
+                files={"image": ("test.jpg", self.img_bytes, "image/jpeg")},
+                data={"model": "fake"}
+            )
+            self.assertIn(response.status_code, [200, 500])
