@@ -5,13 +5,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git-lfs \
     libgl1 \
+    wget \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/* \
     && git lfs install
 
-# 2) Clona tu repo de pesos (ya tiene columna.pth y torax.pth en la raíz)
+# 2) Clona los modelos
 WORKDIR /app
 RUN git clone https://huggingface.co/aleruizzs/modelos /app/modelos
+RUN mkdir -p /app/inference/model_strategies/SAM-Med2D/pretrain_model && \
+    wget https://huggingface.co/aleruizzs/SAM-Med2D/resolve/main/sam-med2d_b.pth \
+         -O /app/inference/model_strategies/SAM-Med2D/pretrain_model/sam-med2d_b.pth
 
 # 3) Instala dependencias Python
 COPY requirements.txt .
@@ -22,7 +26,7 @@ RUN pip install --no-cache-dir \
       torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cpu \
     && pip install --no-cache-dir git+https://github.com/facebookresearch/detectron2.git
 
-# 5) Copia el código de tu servidor
+# 5) Copia el código del servidor
 COPY inference ./inference
 ENV PYTHONPATH=/app/inference
 

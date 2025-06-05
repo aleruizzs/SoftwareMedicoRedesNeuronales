@@ -15,6 +15,7 @@ loaded_strategies = {}
 ALLOWED_EXTENSIONS = ["image/jpeg", "image/png"]  # Tipos MIME permitidos
 
 def validate_image_type(file: UploadFile):
+
     if file.content_type not in ALLOWED_EXTENSIONS:
         raise HTTPException(
             status_code=400,
@@ -23,6 +24,8 @@ def validate_image_type(file: UploadFile):
 
 @app.post("/predict/")
 async def predict(model: str = Form(...), image: UploadFile = File(...)):
+    print("📥 Modelo recibido:", model)
+    print("📎 Tipo de archivo recibido:", image.content_type)
     print(f"⏱ Recibida petición {uuid.uuid4().hex[:5]} en {time.time()}")
     try:
         start_time = time.time()
@@ -60,8 +63,11 @@ async def predict(model: str = Form(...), image: UploadFile = File(...)):
     except HTTPException as he:
         raise he
     except Exception as e:
-        print("🔥 ERROR:", e)
+        import traceback
+        traceback.print_exc()  
+        print("🔥 ERROR:", repr(e)) 
         return JSONResponse(
             status_code=500,
             content={"error": "Error interno en el servidor de inferencia"}
         )
+

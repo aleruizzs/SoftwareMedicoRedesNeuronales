@@ -8,9 +8,9 @@ def get_model_strategy(model_name: str):
     elif model_name == "fake":
         from .fake import FakeStrategy
         return FakeStrategy()
-    elif model_name == "yolo":
-        from .yolo import YoloStrategy
-        return YoloStrategy()
+    elif model_name == "SAM-Med2D":
+        from .sammed2d import SamMed2DStrategy
+        return SamMed2DStrategy()
 
     else:
         raise ValueError(f"Modelo desconocido: {model_name}")

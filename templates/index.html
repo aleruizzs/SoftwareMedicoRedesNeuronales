@@ -204,7 +204,7 @@
       <option value="columna">Columna</option>
       <option value="torax">Tórax</option>
       <option value="fake">Fake</option>
-      <option value="yolo">YOLOv8</option>
+      <option value="SAM-Med2D">SAM-Med2D</option>
     </select>
 
     <input type="text" id="patientDNI" placeholder="DNI del paciente" required>
@@ -284,8 +284,10 @@
           }
         });
       
-        if (!response.ok) throw new Error("Error en el procesamiento");
-      
+        if (!response.ok) {
+          const errorText = await response.text();  // <-- Captura cualquier mensaje, incluso si no es JSON
+          throw new Error(`Error en el procesamiento: ${response.status} - ${errorText}`);
+        }
         const data = await response.json();
       
         const originalURL = URL.createObjectURL(file);
