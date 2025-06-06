@@ -12,7 +12,7 @@ from fastapi import HTTPException
 app = FastAPI()
 loaded_strategies = {}
 
-ALLOWED_EXTENSIONS = ["image/jpeg", "image/png"]  # Tipos MIME permitidos
+ALLOWED_EXTENSIONS = ["image/jpeg", "image/png"]
 
 def validate_image_type(file: UploadFile):
 
@@ -38,7 +38,7 @@ async def predict(model: str = Form(...), image: UploadFile = File(...)):
         if img is None:
             raise HTTPException(status_code=400, detail="La imagen no pudo decodificarse. ¿Formato o tamaño incorrecto?")
 
-        # 🔁 Usa modelo cacheado si ya existe
+        # Usa modelo cacheado si ya existe
         if model in loaded_strategies:
             strategy = loaded_strategies[model]
         else:
@@ -65,7 +65,7 @@ async def predict(model: str = Form(...), image: UploadFile = File(...)):
     except Exception as e:
         import traceback
         traceback.print_exc()  
-        print("🔥 ERROR:", repr(e)) 
+        print("ERROR:", repr(e)) 
         return JSONResponse(
             status_code=500,
             content={"error": "Error interno en el servidor de inferencia"}

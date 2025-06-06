@@ -15,7 +15,7 @@ class SamMed2DStrategy(BaseModelStrategy):
 
         checkpoint = os.path.join(repo_path, "pretrain_model", "sam-med2d_b.pth")
         args = Namespace(image_size=256, encoder_adapter=True, sam_checkpoint=checkpoint)
-        device = "cpu"  # Cambia a "cuda" si tienes GPU disponible/configurada
+        device = "cpu"  # Cambia a "cuda" si hay GPU disponible/configurada
         self.model = sam_model_registry["vit_b"](args).to(device)
         self.predictor = SammedPredictor(self.model)
 

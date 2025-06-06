@@ -6,7 +6,6 @@
   <meta name="csrf-token" content="{{ csrf_token }}">
   <title>Procesador de Imágenes Médicas</title>
   <style>
-    /* Reset básico */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -106,7 +105,6 @@
       margin-bottom: 15px;
       font-size: 15px;
     }
-    /* Spinner */
     #loader-container {
       display: none;
       text-align: center;
@@ -129,7 +127,6 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    /* Descarga */
     .download-card {
       display: none;
       background: #2a9d8f;
@@ -147,10 +144,8 @@
     }
 
     button#procesarButton:hover {
-      background: #b92f3a; /* un tono más oscuro del rojo base */
+      background: #b92f3a;
     }
-
-    /* Imágenes */
     .image-section {
       display: none;
       margin-top: 20px;
@@ -284,7 +279,7 @@
         });
       
         if (!response.ok) {
-          const errorText = await response.text();  // <-- Captura cualquier mensaje, incluso si no es JSON
+          const errorText = await response.text();
           throw new Error(`Error en el procesamiento: ${response.status} - ${errorText}`);
         }
         const data = await response.json();
