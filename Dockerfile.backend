@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y libgl1 libglib2.0-0
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/ ./backend
+COPY manage.py /app/
 COPY image_processing ./image_processing
 COPY templates ./templates
 COPY scripts ./scripts
@@ -19,7 +20,7 @@ COPY scripts ./scripts
 
 ENV PYTHONPATH=/app
 RUN mkdir -p /app/backend
-RUN python backend/manage.py migrate
-RUN python backend/manage.py runscript init_data
+RUN python manage.py migrate
+RUN python manage.py runscript init_data
 
-CMD ["python", "backend/manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

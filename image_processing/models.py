@@ -1,11 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-class MedicalImage(models.Model):
-    image = models.ImageField(upload_to="images/")
-    processed_image = models.ImageField(upload_to="processed_images/", null=True, blank=True)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-
 class ProcessedImage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     patient_dni = models.CharField(max_length=20)
