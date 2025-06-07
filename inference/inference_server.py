@@ -54,7 +54,7 @@ async def predict(model: str = Form(...), image: UploadFile = File(...)):
         cv2.imwrite(output_path, out_img)
 
         total_time = time.time() - start_time
-        print(f"⏱ Tiempo total de procesamiento: {total_time:.2f} segundos")
+        print(f"Tiempo total de procesamiento: {total_time:.2f} segundos")
 
         return FileResponse(output_path, media_type="image/png")
 

@@ -36,8 +36,8 @@ def process_image(request):
 
 
     if response.status_code != 200:
-        print("❌ FastAPI error:", response.status_code)
-        print("🪵 Detalles del error:", response.text)
+        print("FastAPI error:", response.status_code)
+        print("Detalles del error:", response.text)
         return Response({"error": f"Error desde el servidor de inferencia: {response.text}"}, status=500)
 
     # Guardar la imagen procesada recibida desde FastAPI
