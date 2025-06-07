@@ -24,9 +24,9 @@ def validate_image_type(file: UploadFile):
 
 @app.post("/predict/")
 async def predict(model: str = Form(...), image: UploadFile = File(...)):
-    print("📥 Modelo recibido:", model)
-    print("📎 Tipo de archivo recibido:", image.content_type)
-    print(f"⏱ Recibida petición {uuid.uuid4().hex[:5]} en {time.time()}")
+    print("Modelo recibido:", model)
+    print("Tipo de archivo recibido:", image.content_type)
+    print(f"Recibida petición {uuid.uuid4().hex[:5]} en {time.time()}")
     try:
         start_time = time.time()
 
