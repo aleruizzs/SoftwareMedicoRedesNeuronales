@@ -1,8 +1,8 @@
 def get_model_strategy(model_name: str):
-    if model_name == "columna":
+    if model_name == "Columna":
         from .columna import ColumnaStrategy
         return ColumnaStrategy()
-    elif model_name == "fake":
+    elif model_name == "Fake":
         from .fake import FakeStrategy
         return FakeStrategy()
     elif model_name == "SAM-Med2D":

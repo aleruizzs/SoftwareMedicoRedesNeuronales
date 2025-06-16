@@ -20,8 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-m@64l7zp40_hd3sgbz$lt&9c6(cjkbsgvw3%a+mkm60*5oc&+3"
+import os, json
+with open(os.path.join(BASE_DIR, "settings_secret.json")) as f:
+    secrets = json.load(f)
+
+SECRET_KEY = secrets["SECRET_KEY"]
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -79,8 +83,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "backend" / "db.sqlite3",
-        'ENGINE': 'django.db.backends.sqlite3',
+        "NAME": BASE_DIR / "backend" / "db.sqlite3"
     }
 }
 

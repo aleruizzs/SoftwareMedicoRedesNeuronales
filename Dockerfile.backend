@@ -15,7 +15,7 @@ COPY manage.py /app/
 COPY image_processing ./image_processing
 COPY templates ./templates
 COPY scripts ./scripts
-
+COPY settings_secret.json /app/
 
 
 ENV PYTHONPATH=/app
