@@ -21,9 +21,23 @@ def validate_image_type(file: UploadFile):
             status_code=400,
             detail="El archivo debe ser una imagen en formato JPG, JPEG o PNG"
         )
+    
+def parse_points(points_str: str):
+    """Convierte una cadena "x1,y1;x2,y2" en un array de puntos."""
+    try:
+        points = []
+        for pair in points_str.split(';'):
+            if not pair.strip():
+                continue
+            x_str, y_str = pair.split(',')
+            points.append([int(x_str), int(y_str)])
+        return np.array(points, dtype=np.int32)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Formato de puntos inválido")
+
 
 @app.post("/predict/")
-async def predict(model: str = Form(...), image: UploadFile = File(...)):
+async def predict(model: str = Form(...), image: UploadFile = File(...), points: str = Form(None)):
     print("Modelo recibido:", model)
     print("Tipo de archivo recibido:", image.content_type)
     print(f"Recibida petición {uuid.uuid4().hex[:5]} en {time.time()}")
@@ -46,7 +60,12 @@ async def predict(model: str = Form(...), image: UploadFile = File(...)):
             strategy.configure()
             loaded_strategies[model] = strategy
 
-        out_img = strategy.predict(img)
+        parsed_points = parse_points(points) if points else None
+
+        if model == "SAM-Med2D":
+            out_img = strategy.predict(img, points=parsed_points)
+        else:
+            out_img = strategy.predict(img)
 
         filename = f"output_{uuid.uuid4().hex}.png"
         output_path = os.path.join("outputs", filename)

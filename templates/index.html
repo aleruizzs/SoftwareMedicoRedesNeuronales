@@ -201,9 +201,14 @@
       <option value="SAM-Med2D">SAM-Med2D</option>
     </select>
 
-    <input type="text" id="patientDNI" placeholder="DNI del paciente" required>
 
+
+    <!-- Coordenadas seleccionadas en la imagen -->
+    <input type="hidden" id="pointsInput">
+
+    <input type="text" id="patientDNI" placeholder="DNI del paciente" required>
     <input type="file" id="imageInput" accept="image/jpeg, image/png">
+
     <button id="procesarButton" onclick="uploadImage()">Procesar Imagen</button>
     <div id="error-message"></div>
 
@@ -218,9 +223,11 @@
 
     <!-- Sección de imágenes -->
     <div class="image-section" id="image-section">
-      <div class="image-container">
+          <p id="pointInstructions" style="display:none;color:#555;font-size:14px;">Haz clic en la imagen para seleccionar puntos.</p>
+      <div class="image-container" style="position:relative;">
         <h2>Imagen Original</h2>
         <img id="originalImage" src="" alt="Imagen original" onclick="openModal(this.src)">
+        <canvas id="pointsCanvas" style="position:absolute;top:20 px;left:0;pointer-events:none;"></canvas>
       </div>
       <div class="image-container">
         <h2>Imagen Procesada</h2>
@@ -230,6 +237,67 @@
   </div>
 
   <script>
+    const modelSelect = document.getElementById("model");
+    const pointsInput = document.getElementById("pointsInput");
+    const pointInstructions = document.getElementById("pointInstructions");
+    const originalImg = document.getElementById("originalImage");
+    const pointsCanvas = document.getElementById("pointsCanvas");
+    const ctx = pointsCanvas.getContext("2d");
+    const selectedPoints = [];
+
+    function resizeCanvas() {
+      pointsCanvas.width = originalImg.clientWidth;
+      pointsCanvas.height = originalImg.clientHeight;
+      drawPoints();
+    }
+
+    function drawPoints() {
+      ctx.clearRect(0, 0, pointsCanvas.width, pointsCanvas.height);
+      ctx.fillStyle = "red";
+      selectedPoints.forEach(pt => {
+        const xDisplay = (pt.x / originalImg.naturalWidth) * pointsCanvas.width;
+        const yDisplay = (pt.y / originalImg.naturalHeight) * pointsCanvas.height;
+        ctx.beginPath();
+        ctx.arc(xDisplay, yDisplay, 4, 0, 2 * Math.PI);
+        ctx.fill();
+      });
+    }
+
+    originalImg.addEventListener("load", resizeCanvas);
+    window.addEventListener("resize", resizeCanvas);
+
+    originalImg.addEventListener("click", () => {
+      if (!originalImg.src) return;
+      const enable = modelSelect.value === "SAM-Med2D";
+      openModal(originalImg.src, enable);
+    });
+
+    modelSelect.addEventListener("change", () => {
+      if (modelSelect.value !== "SAM-Med2D") {
+        selectedPoints.length = 0;
+        pointsInput.value = "";
+        drawPoints();
+        pointInstructions.style.display = "none";
+      } else {
+        pointInstructions.style.display = "block";
+      }
+    });
+
+    if (modelSelect.value === "SAM-Med2D") {
+      pointInstructions.style.display = "block";
+    }
+
+    document.getElementById("imageInput").addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      originalImg.src = url;
+      document.getElementById("image-section").style.display = "flex";
+      selectedPoints.length = 0;
+      pointsInput.value = "";
+      drawPoints();
+    });
+
     async function uploadImage() {
       const input = document.getElementById("imageInput");
       const errorMessageDiv = document.getElementById("error-message");
@@ -262,9 +330,13 @@
       }
       
       const formData = new FormData();
+      const model = document.getElementById("model").value;
       formData.append("image", file);
-      formData.append("model", document.getElementById("model").value);
+      formData.append("model", model);
       formData.append("patient_dni", dni);
+      if (model === "SAM-Med2D" && pointsInput.value) {
+        formData.append("points", pointsInput.value);
+      }
 
       console.time("TotalProcessingTime");
 
@@ -323,27 +395,86 @@
         });
     }
 
-    function openModal(imageSrc) {
+    function drawPointsOn(canvas, img) {
+      const cctx = canvas.getContext("2d");
+      cctx.clearRect(0, 0, canvas.width, canvas.height);
+      cctx.fillStyle = "red";
+      selectedPoints.forEach(pt => {
+        const x = (pt.x / img.naturalWidth) * canvas.width;
+        const y = (pt.y / img.naturalHeight) * canvas.height;
+        cctx.beginPath();
+        cctx.arc(x, y, 4, 0, 2 * Math.PI);
+        cctx.fill();
+      });
+    }
+
+    function openModal(imageSrc, enableSelection = false) {
       const modal = document.createElement("div");
-      modal.style.position = "fixed";
-      modal.style.top = "0";
-      modal.style.left = "0";
-      modal.style.width = "100%";
-      modal.style.height = "100%";
-      modal.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-      modal.style.display = "flex";
-      modal.style.justifyContent = "center";
-      modal.style.alignItems = "center";
-      modal.onclick = () => document.body.removeChild(modal);
-      
+      Object.assign(modal.style, {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
+      });
+
+      const container = document.createElement("div");
+      container.style.position = "relative";
+
       const img = document.createElement("img");
       img.src = imageSrc;
       img.style.maxWidth = "90%";
       img.style.maxHeight = "90%";
-      
-      modal.appendChild(img);
+
+      container.appendChild(img);
+
+      let canvas;
+      if (enableSelection) {
+        canvas = document.createElement("canvas");
+        canvas.style.position = "absolute";
+        canvas.style.top = "0";
+        canvas.style.left = "0";
+        container.appendChild(canvas);
+
+        function resize() {
+          canvas.width = img.clientWidth;
+          canvas.height = img.clientHeight;
+          drawPointsOn(canvas, img);
+        }
+
+        img.addEventListener("load", resize);
+        window.addEventListener("resize", resize);
+        resize();
+
+        canvas.addEventListener("click", e => {
+          const rect = canvas.getBoundingClientRect();
+          const xDisp = e.clientX - rect.left;
+          const yDisp = e.clientY - rect.top;
+          const scaleX = img.naturalWidth / img.clientWidth;
+          const scaleY = img.naturalHeight / img.clientHeight;
+          const x = Math.round(xDisp * scaleX);
+          const y = Math.round(yDisp * scaleY);
+          selectedPoints.push({ x, y });
+          pointsInput.value = selectedPoints.map(p => `${p.x},${p.y}`).join(";");
+          drawPointsOn(canvas, img);
+          drawPoints();
+        });
+      }
+
+      modal.addEventListener("click", e => {
+        if (e.target === modal) {
+          document.body.removeChild(modal);
+        }
+      });
+
+      modal.appendChild(container);
       document.body.appendChild(modal);
     }
+
 
   </script>
 </body>

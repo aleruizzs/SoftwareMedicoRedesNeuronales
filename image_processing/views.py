@@ -26,11 +26,17 @@ def process_image(request):
 
     image_file = request.FILES['image']
     model_name = request.POST['model']
+    points = request.POST.get('points')
+
+    # Enviar la imagen al servidor FastAPI
+    data = {'model': model_name}
+    if points:
+        data['points'] = points
 
     # Enviar la imagen al servidor FastAPI
     response = requests.post(
         "http://inference:8001/predict/",
-        data={'model': model_name},
+        data=data,
         files={'image': (image_file.name, image_file.read(), image_file.content_type)}
     )
 
