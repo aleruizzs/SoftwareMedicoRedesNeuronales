@@ -50,7 +50,7 @@
    * Click **🚪 Cerrar sesión** at the top of the page
 
 
-# Guía rápida de instalación y uso en español
+# Guía Rápida de Instalación y Uso en Español
 
 ## Instalación
 
