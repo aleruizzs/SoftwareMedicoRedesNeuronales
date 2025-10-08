@@ -1,12 +1,64 @@
-# Guía rápida de instalación y uso
+# Quick Installation and Usage Guide in English
+
+## Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/aleruizzs/SoftwareMedicoRedesNeuronales.git
+   cd SoftwareMedicoRedesNeuronales
+   ```
+
+2. **Start the containers**
+   
+     ```bash
+     docker-compose up --build web inference
+     ```
+     ⚠️ The first time it may take several minutes, as the required models and dependencies are downloaded.
+---
+
+## Usage
+
+1. **Access**
+
+   * Visit `http://localhost:8000`.
+   * Log in with your username and password.  
+    Default: username: admin, password: admin123  
+    <i>(The project report explains how to create a new one if desired).</i>
+
+
+2. **Analyze image**
+
+   1. Choose a **model**.
+   2. Enter the patient ID **(DNI)**.
+   3. Select the **image** (JPG/PNG) and click **“Procesar Imagen”**.
+   4. Wait a few seconds while the **spinner** indicates progress.
+
+3. **Results**
+
+   * The **Original Image** and the **Processed Image** are displayed side by side
+   * Download the result using the **“Descargar imagen procesada”** button.
+
+4. **History**
+
+   * Click **📂 Historial** to view all processed images.
+   * Filter by **DNI** using the search bar.
+   * Use 🔍 to open an image or 🗑️ to delete it.
+
+5. **Log out**
+
+   * Click **🚪 Cerrar sesión** at the top of the page
+
+
+# Guía rápida de instalación y uso en español
 
 ## Instalación
 
 1. **Clonar el repositorio**
 
    ```bash
-   git clone https://github.com/aleruizzs/TFG.git
-   cd TFG
+   git clone https://github.com/aleruizzs/SoftwareMedicoRedesNeuronales.git
+   cd SoftwareMedicoRedesNeuronales
    ```
 
 2. **Iniciar los contenedores**
